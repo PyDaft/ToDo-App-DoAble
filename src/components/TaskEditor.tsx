@@ -2,12 +2,14 @@ import { useState, type FormEvent } from 'react'
 import { todayStr, tomorrowStr } from '../lib/dates'
 import { PRIORITIES, type List, type Priority, type Task, type TaskPatch } from '../lib/types'
 import { Modal } from './Modal'
+import { TagInput } from './TagInput'
 import { Button, inputClass } from './ui'
 
 /** Edit every field of a task. Changes are saved together on "Save" (or Ctrl+Enter). */
-export function TaskEditor({ task, lists, onSave, onDelete, onClose }: {
+export function TaskEditor({ task, lists, tagSuggestions, onSave, onDelete, onClose }: {
   task: Task
   lists: List[]
+  tagSuggestions: string[]
   onSave: (patch: TaskPatch) => void
   onDelete: () => void
   onClose: () => void
@@ -17,6 +19,9 @@ export function TaskEditor({ task, lists, onSave, onDelete, onClose }: {
   const [dueDate, setDueDate] = useState(task.due_date ?? '')
   const [priority, setPriority] = useState<Priority>(task.priority)
   const [listId, setListId] = useState(task.list_id ?? '')
+  const [tags, setTags] = useState(task.tags)
+  // Archived categories are hidden from the picker, unless this task is already in one.
+  const choices = lists.filter((l) => !l.archived_at || l.id === task.list_id)
 
   function save(e?: FormEvent) {
     e?.preventDefault()
@@ -28,6 +33,7 @@ export function TaskEditor({ task, lists, onSave, onDelete, onClose }: {
       due_date: dueDate || null,
       priority,
       list_id: listId || null,
+      tags,
     })
   }
 
@@ -70,15 +76,20 @@ export function TaskEditor({ task, lists, onSave, onDelete, onClose }: {
           </div>
 
           <div>
-            <label htmlFor="task-list" className={labelClass}>List</label>
+            <label htmlFor="task-list" className={labelClass}>Category</label>
             <select id="task-list" className={inputClass} value={listId}
               onChange={(e) => setListId(e.target.value)}>
-              <option value="">No list</option>
-              {lists.map((l) => (
-                <option key={l.id} value={l.id}>{l.name}</option>
+              <option value="">No category</option>
+              {choices.map((l) => (
+                <option key={l.id} value={l.id}>{l.name}{l.archived_at ? ' (archived)' : ''}</option>
               ))}
             </select>
           </div>
+        </div>
+
+        <div>
+          <label htmlFor="task-tags" className={labelClass}>Tags</label>
+          <TagInput id="task-tags" value={tags} onChange={setTags} suggestions={tagSuggestions} />
         </div>
 
         <fieldset>

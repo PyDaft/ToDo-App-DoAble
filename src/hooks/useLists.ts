@@ -21,7 +21,7 @@ export function useLists(userId: string) {
       .order('created_at', { ascending: true })
       .then(({ data, error }) => {
         if (!active) return
-        if (error) setError(`Couldn’t load lists: ${error.message}`)
+        if (error) setError(`Couldn’t load categories: ${error.message}`)
         else setLists(data as List[])
         setLoading(false)
       })
@@ -34,24 +34,33 @@ export function useLists(userId: string) {
   const addList = useCallback(async (name: string, color: string): Promise<List | null> => {
     const { data, error } = await supabase.from('lists').insert({ name, color }).select().single()
     if (error) {
-      setError(`Couldn’t create list: ${error.message}`)
+      setError(`Couldn’t create category: ${error.message}`)
       return null
     }
     setLists((prev) => [...prev, data as List])
     return data as List
   }, [])
 
-  const updateList = useCallback(async (id: string, patch: Pick<List, 'name' | 'color'>) => {
-    const before = listsRef.current.find((l) => l.id === id)
-    if (!before) return
-    setLists((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)))
+  const updateList = useCallback(
+    async (id: string, patch: Partial<Pick<List, 'name' | 'color' | 'archived_at'>>) => {
+      const before = listsRef.current.find((l) => l.id === id)
+      if (!before) return
+      setLists((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)))
 
-    const { error } = await supabase.from('lists').update(patch).eq('id', id)
-    if (error) {
-      setLists((prev) => prev.map((l) => (l.id === id ? before : l)))
-      setError(`Couldn’t save list: ${error.message}`)
-    }
-  }, [])
+      const { error } = await supabase.from('lists').update(patch).eq('id', id)
+      if (error) {
+        setLists((prev) => prev.map((l) => (l.id === id ? before : l)))
+        setError(`Couldn’t save category: ${error.message}`)
+      }
+    },
+    [],
+  )
+
+  const setArchived = useCallback(
+    (id: string, archived: boolean) =>
+      updateList(id, { archived_at: archived ? new Date().toISOString() : null }),
+    [updateList],
+  )
 
   /** Resolves true if the list is gone, so the caller can also detach its tasks. */
   const deleteList = useCallback(async (id: string): Promise<boolean> => {
@@ -62,7 +71,7 @@ export function useLists(userId: string) {
     const { error } = await supabase.from('lists').delete().eq('id', id)
     if (error) {
       setLists((prev) => [...prev, before].sort((a, b) => a.created_at.localeCompare(b.created_at)))
-      setError(`Couldn’t delete list: ${error.message}`)
+      setError(`Couldn’t delete category: ${error.message}`)
       return false
     }
     return true
@@ -70,5 +79,5 @@ export function useLists(userId: string) {
 
   const clearError = useCallback(() => setError(null), [])
 
-  return { lists, loading, error, clearError, addList, updateList, deleteList }
+  return { lists, loading, error, clearError, addList, updateList, setArchived, deleteList }
 }

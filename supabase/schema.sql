@@ -14,6 +14,7 @@ create table if not exists public.lists (
   user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
   name       text not null check (char_length(name) between 1 and 100),
   color      text not null default '#6366f1',
+  archived_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -25,6 +26,7 @@ create table if not exists public.tasks (
   notes        text,
   due_date     date,
   priority     smallint not null default 3 check (priority between 1 and 3), -- 1 high, 2 medium, 3 low
+  tags         text[] not null default '{}',
   is_done      boolean not null default false,
   completed_at timestamptz,
   created_at   timestamptz not null default now(),
@@ -34,6 +36,8 @@ create table if not exists public.tasks (
 create index if not exists lists_user_idx          on public.lists (user_id);
 create index if not exists tasks_user_done_due_idx on public.tasks (user_id, is_done, due_date);
 create index if not exists tasks_list_idx          on public.tasks (list_id);
+create index if not exists tasks_tags_idx          on public.tasks using gin (tags);
+create index if not exists tasks_user_completed_idx on public.tasks (user_id, completed_at);
 
 -- ─── Row Level Security: every user only ever sees their own rows ──────────
 
@@ -106,7 +110,7 @@ create trigger tasks_set_updated_at
   before update on public.tasks
   for each row execute function public.set_updated_at();
 
--- On signup: create the profile and a default "Personal" list.
+-- On signup: create the profile and default "Personal" and "Work" categories.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql security definer set search_path = ''
@@ -116,7 +120,8 @@ begin
   values (new.id, split_part(new.email, '@', 1));
 
   insert into public.lists (user_id, name, color)
-  values (new.id, 'Personal', '#6366f1');
+  values (new.id, 'Personal', '#6366f1'),
+         (new.id, 'Work', '#0ea5e9');
 
   return new;
 end;

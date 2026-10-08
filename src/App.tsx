@@ -27,7 +27,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Navigate to="/today" replace />} />
             {/* One route for every view so switching views doesn't reload data. */}
-            <Route path="/:view/:listId?" element={<Home />} />
+            <Route path="/:view/:param?" element={<Home />} />
             <Route path="*" element={<Navigate to="/today" replace />} />
           </Route>
         </Routes>

@@ -1,12 +1,13 @@
+import { Link } from 'react-router-dom'
 import { isPendingTask } from '../hooks/useTasks'
-import { formatDue } from '../lib/dates'
+import { formatDue, formatShortDay, formatTime } from '../lib/dates'
 import { priorityInfo, type List, type Task } from '../lib/types'
-import { isOverdue } from '../lib/views'
+import { doneDay, isOverdue } from '../lib/views'
 import { Icon } from './Icon'
 
 export function TaskItem({ task, list, today, onToggle, onOpen, onDelete }: {
   task: Task
-  /** Shown as a chip when set (omitted inside a list's own view). */
+  /** Shown as a chip when set (omitted inside a category's own view). */
   list?: List
   today: string
   onToggle: (task: Task) => void
@@ -16,6 +17,7 @@ export function TaskItem({ task, list, today, onToggle, onOpen, onDelete }: {
   const priority = priorityInfo(task.priority)
   const overdue = isOverdue(task, today)
   const pending = isPendingTask(task)
+  const completedOn = doneDay(task)
 
   return (
     <li
@@ -29,41 +31,58 @@ export function TaskItem({ task, list, today, onToggle, onOpen, onDelete }: {
         onClick={() => onToggle(task)}
         className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
           task.is_done
-            ? 'border-slate-400 bg-slate-400 text-white dark:border-slate-600 dark:bg-slate-600'
+            ? 'border-emerald-500 bg-emerald-500 text-white dark:border-emerald-600 dark:bg-emerald-600'
             : `${priority.ring} hover:bg-slate-200 dark:hover:bg-slate-800`
         }`}
       >
         {task.is_done && <Icon name="check" className="size-3" />}
       </button>
 
-      <button type="button" onClick={() => onOpen(task)} className="min-w-0 flex-1 text-left">
-        <span
-          className={`block text-sm break-words ${task.is_done ? 'text-slate-400 line-through dark:text-slate-500' : ''}`}
-        >
-          {task.title}
-        </span>
-        {(task.due_date || list || task.notes) && (
-          <span className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400">
-            {task.due_date && (
+      <div className="min-w-0 flex-1">
+        <button type="button" onClick={() => onOpen(task)} className="block w-full text-left">
+          <span
+            className={`block text-sm break-words ${task.is_done ? 'text-slate-400 line-through dark:text-slate-500' : ''}`}
+          >
+            {task.title}
+          </span>
+        </button>
+        {(task.due_date || list || task.notes || task.tags.length > 0 || completedOn) && (
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400">
+            {completedOn && task.completed_at && (
+              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                <Icon name="check" className="size-3.5" />
+                {completedOn === today ? formatTime(task.completed_at) : formatShortDay(completedOn)}
+              </span>
+            )}
+            {task.due_date && !task.is_done && (
               <span className={`inline-flex items-center gap-1 ${overdue ? 'font-medium text-red-600 dark:text-red-400' : ''}`}>
                 <Icon name="calendar" className="size-3.5" />
                 {formatDue(task.due_date)}
               </span>
             )}
             {list && (
-              <span className="inline-flex items-center gap-1">
+              <Link to={`/category/${list.id}`} className="inline-flex items-center gap-1 hover:underline">
                 <span className="size-2 rounded-full" style={{ backgroundColor: list.color }} />
                 {list.name}
-              </span>
+              </Link>
             )}
+            {task.tags.map((tag) => (
+              <Link
+                key={tag}
+                to={`/tag/${encodeURIComponent(tag)}`}
+                className="rounded bg-slate-100 px-1.5 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-indigo-950/60 dark:hover:text-indigo-300"
+              >
+                #{tag}
+              </Link>
+            ))}
             {task.notes && (
               <span className="inline-flex items-center" title="Has notes">
                 <Icon name="notes" className="size-3.5" />
               </span>
             )}
-          </span>
+          </div>
         )}
-      </button>
+      </div>
 
       <button
         type="button"

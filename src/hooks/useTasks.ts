@@ -49,6 +49,7 @@ export function useTasks(userId: string) {
         due_date: input.due_date ?? null,
         priority: input.priority ?? DEFAULT_PRIORITY,
         list_id: input.list_id ?? null,
+        tags: input.tags ?? [],
       }
       const tempId = TEMP_PREFIX + crypto.randomUUID()
       const optimistic: Task = {
