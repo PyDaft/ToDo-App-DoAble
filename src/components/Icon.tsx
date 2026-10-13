@@ -19,6 +19,8 @@ const PATHS = {
   tag: 'M3 12V4h8l10 10-8 8L3 12zM7.5 8.5h.01',
   history: 'M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2',
   archive: 'M3 5h18v4H3zM5 9v10h14V9M10 13h4',
+  bell: 'M6 16V11a6 6 0 1 1 12 0v5l2 2H4l2-2zM10 21h4',
+  arrowRight: 'M5 12h14M13 6l6 6-6 6',
 } as const
 
 export type IconName = keyof typeof PATHS

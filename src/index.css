@@ -1,7 +1,49 @@
-@import 'tailwindcss';
+/* Tailwind with utilities left unlayered on purpose: some browser extensions inject
+   unlayered helpers like `.hidden` / `.flex`, which would otherwise beat layered
+   responsive classes. Some also force `.hidden` with !important, so show/hide by screen size
+   with `max-md:hidden` rather than `hidden md:block`. */
+@layer theme, base;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
 
 /* Dark mode is driven by a `dark` class on <html> (see src/lib/theme.ts). */
 @custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --animate-pop-in: pop-in 140ms ease-out;
+  --animate-toast-in: toast-in 200ms ease-out;
+  --animate-check: check 300ms ease-out;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes check {
+  50% {
+    transform: scale(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
 
 :root {
   color-scheme: light;
@@ -9,8 +51,21 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* Dark mode uses neutral greys (greyish black) instead of the blue-tinted slate scale.
+   Every slate-* class in the app picks this up, so light mode is unchanged. */
 :root.dark {
   color-scheme: dark;
+  --color-slate-50: oklch(98.5% 0 0); /* neutral-50 */
+  --color-slate-100: oklch(97% 0 0); /* neutral-100 */
+  --color-slate-200: oklch(92.2% 0 0); /* neutral-200 */
+  --color-slate-300: oklch(87% 0 0); /* neutral-300 */
+  --color-slate-400: oklch(70.8% 0 0); /* neutral-400 */
+  --color-slate-500: oklch(55.6% 0 0); /* neutral-500 */
+  --color-slate-600: oklch(43.9% 0 0); /* neutral-600 */
+  --color-slate-700: oklch(37.1% 0 0); /* neutral-700 */
+  --color-slate-800: oklch(26.9% 0 0); /* neutral-800 */
+  --color-slate-900: oklch(20.5% 0 0); /* neutral-900 */
+  --color-slate-950: oklch(14.5% 0 0); /* neutral-950 */
 }
 
 body {

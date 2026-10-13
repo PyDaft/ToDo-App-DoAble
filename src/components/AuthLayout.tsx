@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Logo } from './Logo'
 
 /** Centered card used by the login, signup and password pages. */
 export function AuthLayout({ title, subtitle, children, footer }: {
@@ -10,9 +11,8 @@ export function AuthLayout({ title, subtitle, children, footer }: {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-slate-50 px-4 py-10 dark:bg-slate-950">
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex items-center justify-center gap-2">
-          <img src="/favicon.svg" alt="" className="size-8" />
-          <span className="text-xl font-semibold tracking-tight">Todo</span>
+        <div className="mb-8 flex justify-center">
+          <Logo size="lg" tagline />
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <h1 className="text-lg font-semibold">{title}</h1>

@@ -4,14 +4,13 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Todo</title>
+    <meta name="description" content="DoAble — Make today doable." />
+    <meta name="theme-color" content="#6366f1" />
+    <title>DoAble — Make today doable.</title>
     <script>
-      // Apply the saved theme before first paint to avoid a light/dark flash.
+      // Light by default; apply a saved dark choice before first paint to avoid a flash.
       try {
-        var t = localStorage.getItem('theme')
-        if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark')
-        }
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark')
       } catch (e) {}
     </script>
   </head>

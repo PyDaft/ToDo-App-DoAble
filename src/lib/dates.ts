@@ -75,6 +75,20 @@ export function formatShortDay(day: string): string {
   return format(parseISO(day), 'EEE, MMM d')
 }
 
+/** Next Monday (always in the future, even when today is Monday). */
+export function nextWeekStr(): string {
+  const today = todayStr()
+  return addDaysStr(weekStartOf(today), 7)
+}
+
+/** "Good morning" / "Good afternoon" / "Good evening" for the current local time. */
+export function greeting(now = new Date()): string {
+  const h = now.getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
 /** "3:42 PM" */
 export function formatTime(timestamp: string): string {
   return format(parseISO(timestamp), 'h:mm a')

@@ -2,7 +2,7 @@ export type Theme = 'light' | 'dark'
 
 const STORAGE_KEY = 'theme'
 
-/** The theme the user picked, or null if they haven't (then we follow the system). */
+/** The theme the user picked, or null if they haven't (then it's light). */
 export function getSavedTheme(): Theme | null {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -18,10 +18,6 @@ export function saveTheme(theme: Theme) {
   } catch {
     // Storage blocked (private mode etc.) — the toggle still works for this visit.
   }
-}
-
-export function systemTheme(): Theme {
-  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 export function applyTheme(theme: Theme) {

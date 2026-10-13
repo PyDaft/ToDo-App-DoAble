@@ -1,5 +1,9 @@
 # Plan: Personal To-Do Web App (React + Supabase, hosted on Vercel)
 
+> **Status (Oct 13, 2026):** v1 (this plan) and v2 ([PLAN_V2.md](PLAN_V2.md)) are built, and the app is live on Vercel (Phase 8 below).
+> **v3** renamed the app **DoAble**, with the tagline "Make today doable." It also added All/Active/Completed tabs, a date picker in the add box, the "Coming up" popup, progress and overdue nudges, Undo, a phone layout and light mode by default. v3 needed no database changes. See "What's new" in the [README](README.md).
+> **Still open:** Phase 9 (installable app), and recurring tasks.
+
 ## Context
 You want a to-do app that you open in your browser every day, with signup, login and the usual basics. The decisions so far:
 - **Hosted online**, so it works on your laptop and your phone through a real URL.
@@ -160,15 +164,20 @@ Each phase ends with a check you can see. I'll explain briefly what each phase d
 
 **This build does not deploy anything.** There's no GitHub push and no Vercel. The work ends with the app running locally. Phases 8–9 below are for reference only, and I'll do them only if you ask later.
 
-### Phase 8 (NOT in this build, only if you ask later): Deploy
+### Phase 8: Deploy ✅ Done (Oct 13, 2026)
 **Goal:** a real URL you can use from anywhere.
-1. **You:** create an empty GitHub repo called `todo-app`, which can be private. I push the code to it.
-2. **You:** sign in to Vercel with GitHub, click **Import Project**, and choose `todo-app`.
-3. In Vercel's **Environment Variables** settings, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, then deploy.
-4. In Supabase, add the Vercel URL to **Site URL** and **Redirect URLs** so email links go to the live site.
-5. `vercel.json` makes deep links like `/list/abc` work when you refresh the page.
 
-**Done when:** you can sign up and use the app at `https://todo-app-xxx.vercel.app`.
+**How it was actually done** (the Vercel CLI instead of importing from GitHub):
+1. The code is in a private GitHub repo, `PyDaft/todo-app`. Work happens on `dev` and is merged into `master`.
+2. `npx vercel link` created the Vercel project `todo-app` from this folder.
+3. `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` were added as Production env vars with `vercel env add`. The anon key is a "config" (public) value, because Vite ships it in the browser bundle.
+4. `npx vercel deploy --prod` published the site to **https://todo-app-plum-one-47.vercel.app**.
+5. In Supabase, **Site URL** is the Vercel URL, and **Redirect URLs** has both the Vercel URL and `http://localhost:5173/**`.
+6. `vercel.json` rewrites every path to `index.html`, so deep links like `/today` work when you refresh the page.
+
+The Vercel project is **not** connected to GitHub, so each release is deployed with `npx vercel deploy --prod`. See the README.
+
+**Done when:** you can sign up and use the app at the Vercel URL. ✅
 
 ### Phase 9 (NOT in this build, only if you ask later): Make it a daily app
 **Goal:** one click to open it on your laptop and phone.

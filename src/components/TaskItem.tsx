@@ -21,27 +21,33 @@ export function TaskItem({ task, list, today, onToggle, onOpen, onDelete }: {
 
   return (
     <li
-      className={`group flex items-start gap-3 rounded-lg px-2 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-900 ${pending ? 'pointer-events-none opacity-60' : ''}`}
+      className={`group flex items-start gap-3 rounded-lg px-2 py-3 hover:bg-slate-100 md:py-2.5 dark:hover:bg-slate-900 ${pending ? 'pointer-events-none opacity-60' : ''}`}
     >
+      {/* The visible circle is small; the padded button gives a ~44px tap target on phones. */}
       <button
         type="button"
         role="checkbox"
         aria-checked={task.is_done}
         aria-label={task.is_done ? `Mark "${task.title}" as not done` : `Complete "${task.title}"`}
+        title={task.is_done ? 'Mark as not done' : `Complete (${priority.label} priority)`}
         onClick={() => onToggle(task)}
-        className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-          task.is_done
-            ? 'border-emerald-500 bg-emerald-500 text-white dark:border-emerald-600 dark:bg-emerald-600'
-            : `${priority.ring} hover:bg-slate-200 dark:hover:bg-slate-800`
-        }`}
+        className="-m-2.5 shrink-0 p-2.5 md:-m-1 md:p-1"
       >
-        {task.is_done && <Icon name="check" className="size-3" />}
+        <span
+          className={`flex size-6 items-center justify-center rounded-full border-2 transition-colors md:mt-0.5 md:size-5 ${
+            task.is_done
+              ? 'animate-check border-emerald-500 bg-emerald-500 text-white dark:border-emerald-600 dark:bg-emerald-600'
+              : `${priority.ring} text-transparent hover:bg-emerald-50 hover:text-emerald-500 dark:hover:bg-emerald-950/40`
+          }`}
+        >
+          <Icon name="check" className="size-3.5 md:size-3" />
+        </span>
       </button>
 
       <div className="min-w-0 flex-1">
         <button type="button" onClick={() => onOpen(task)} className="block w-full text-left">
           <span
-            className={`block text-sm break-words ${task.is_done ? 'text-slate-400 line-through dark:text-slate-500' : ''}`}
+            className={`block text-[15px] break-words md:text-sm ${task.is_done ? 'text-slate-400 line-through dark:text-slate-500' : ''}`}
           >
             {task.title}
           </span>
@@ -88,7 +94,7 @@ export function TaskItem({ task, list, today, onToggle, onOpen, onDelete }: {
         type="button"
         onClick={() => onDelete(task)}
         aria-label={`Delete "${task.title}"`}
-        className="rounded-md p-1 text-slate-400 hover:bg-red-50 hover:text-red-600 focus:opacity-100 md:opacity-0 md:group-hover:opacity-100 dark:hover:bg-red-950/50"
+        className="-my-1 rounded-md p-2 text-slate-400 hover:bg-red-50 md:my-0 md:p-1 hover:text-red-600 focus:opacity-100 md:opacity-0 md:group-hover:opacity-100 dark:hover:bg-red-950/50"
       >
         <Icon name="trash" className="size-4" />
       </button>

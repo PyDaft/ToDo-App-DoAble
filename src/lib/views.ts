@@ -161,6 +161,73 @@ export function sectionsForSearch(query: string, tasks: Task[]): Section[] {
   ])
 }
 
+export type StatusFilter = 'all' | 'active' | 'completed'
+
+export const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'active', label: 'Active' },
+  { key: 'completed', label: 'Completed' },
+]
+
+export function isStatusFilter(value: string | null): value is StatusFilter {
+  return STATUS_FILTERS.some((f) => f.key === value)
+}
+
+/** How many tasks a screen shows under each status tab. */
+export function countByStatus(sections: Section[]): Record<StatusFilter, number> {
+  const all = sections.flatMap((s) => s.tasks)
+  const completed = all.filter((t) => t.is_done).length
+  return { all: all.length, active: all.length - completed, completed }
+}
+
+/** Narrows a screen's sections to open or finished tasks. Completed sections stay unfolded. */
+export function filterSections(sections: Section[], filter: StatusFilter): Section[] {
+  if (filter === 'all') return sections
+  const keep = filter === 'completed'
+  return nonEmpty(
+    sections.map((s) => ({
+      ...s,
+      tasks: s.tasks.filter((t) => t.is_done === keep),
+      collapsible: keep ? false : s.collapsible,
+    })),
+  )
+}
+
+/** Open tasks for the "Coming up" panel: overdue, today, tomorrow and the rest of the next 7 days. */
+export function comingUp(tasks: Task[], today: string) {
+  const tomorrow = addDaysStr(today, 1)
+  const weekOut = addDaysStr(today, 7)
+  const openDated = tasks.filter((t) => open(t) && !!t.due_date).sort(compareTasks)
+  const overdue = openDated.filter((t) => t.due_date! < today)
+  const dueToday = openDated.filter((t) => t.due_date === today)
+  const dueTomorrow = openDated.filter((t) => t.due_date === tomorrow)
+  const later = openDated
+    .filter((t) => t.due_date! > tomorrow && t.due_date! <= weekOut)
+    .sort((a, b) => a.due_date!.localeCompare(b.due_date!) || compareTasks(a, b))
+  return {
+    sections: nonEmpty([
+      { title: 'Overdue', tasks: overdue, tone: 'danger' },
+      { title: 'Today', tasks: dueToday },
+      { title: 'Tomorrow', tasks: dueTomorrow },
+      { title: 'Next 7 days', tasks: later },
+    ]),
+    /** What deserves attention now: overdue + today + tomorrow. */
+    urgent: overdue.length + dueToday.length + dueTomorrow.length,
+    overdue: overdue.length,
+  }
+}
+
+/** Today's plan: everything due by today plus what was finished today. */
+export function todayProgress(tasks: Task[], today: string) {
+  let done = 0
+  let left = 0
+  for (const t of tasks) {
+    if (doneDay(t) === today) done++
+    else if (open(t) && t.due_date && t.due_date <= today) left++
+  }
+  return { done, total: done + left }
+}
+
 /** Open-task counts shown next to each sidebar entry. */
 export function countOpen(tasks: Task[], today: string) {
   const byList: Record<string, number> = {}

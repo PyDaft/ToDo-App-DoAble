@@ -4,6 +4,7 @@ import { formatShortDay } from '../lib/dates'
 import type { List } from '../lib/types'
 import { VIEWS, type HistoryWeek, type TagSummary, type ViewKey } from '../lib/views'
 import { Icon, type IconName } from './Icon'
+import { Logo } from './Logo'
 
 const VIEW_ICONS: Record<ViewKey, IconName> = {
   today: 'calendar',
@@ -141,9 +142,8 @@ export function Sidebar({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 px-5 py-4">
-        <img src="/favicon.svg" alt="" className="size-7" />
-        <span className="text-lg font-semibold tracking-tight">Todo</span>
+      <div className="px-5 py-4">
+        <Logo tagline />
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-4" aria-label="Views, categories and history">
