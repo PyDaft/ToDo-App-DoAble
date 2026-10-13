@@ -175,7 +175,7 @@ Each phase ends with a check you can see. I'll explain briefly what each phase d
 5. In Supabase, **Site URL** is the Vercel URL, and **Redirect URLs** has both the Vercel URL and `http://localhost:5173/**`.
 6. `vercel.json` rewrites every path to `index.html`, so deep links like `/today` work when you refresh the page.
 
-The Vercel project is **not** connected to GitHub, so each release is deployed with `npx vercel deploy --prod`. See the README.
+**Update (Oct 13, 2026):** the Vercel project is now connected to `PyDaft/todo-app` through the Vercel GitHub App. A push to `master` deploys to production by itself, and a push to `dev` builds a preview. The Supabase env vars are set for both Production and Preview. See "Deploy" in the README.
 
 **Done when:** you can sign up and use the app at the Vercel URL. ✅
 

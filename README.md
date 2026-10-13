@@ -61,16 +61,25 @@ That's the idea behind the app. A to-do list shouldn't be a wall of guilt. It sh
 4. **Keys:** copy `.env.example` to `.env.local` and paste in your Project URL and anon (or publishable) key from **Project Settings → API**.
 5. **Start:** run `npm install`, then `npm run dev`, then open http://localhost:5173.
 
-## Deploy (Vercel CLI)
+## Deploy
 
-The site is deployed from this folder with the Vercel CLI. The Vercel project isn't connected to GitHub, so a push doesn't deploy by itself.
+The Vercel project is connected to this GitHub repo, so pushing is all it takes:
 
-1. Run `npx vercel login` once. Then run `npx vercel link` to connect the folder to the `todo-app` project. That creates `.vercel/`, which is git-ignored.
-2. Set the build-time keys once for Production:
-   `vercel env add VITE_SUPABASE_URL production` and `vercel env add VITE_SUPABASE_ANON_KEY production --type config`.
+| Push to… | What Vercel does |
+|---|---|
+| `master` | Builds it and updates the **live site** (production) |
+| `dev` or any other branch | Builds a separate **preview** link without touching the live site. Preview links are private; you need to be logged in to Vercel to open them. |
+
+**Day to day:** work on `dev`, check its preview, then merge `dev` into `master` to go live.
+
+**Setting it up from scratch** (already done for this project):
+1. In Vercel, open **Project → Settings → Git → Connect Git Repository**. Install the Vercel GitHub App for this repo only, and keep `master` as the production branch.
+2. Add the build-time keys for **Production** and **Preview**:
+   `vercel env add VITE_SUPABASE_URL <production|preview>` and `vercel env add VITE_SUPABASE_ANON_KEY <production|preview> --type config`.
    The anon key is public by design because it ships in the browser bundle. The database's security rules (RLS) are what protect the data.
-3. Run `npx vercel deploy --prod` to build on Vercel and publish to the production URL.
-4. In Supabase, go to **Authentication → URL Configuration**. Set **Site URL** to the Vercel URL and add `https://<vercel-url>/**` to **Redirect URLs**.
+3. In Supabase, go to **Authentication → URL Configuration**. Set **Site URL** to the Vercel URL and add `https://<vercel-url>/**` to **Redirect URLs**.
+
+A manual deploy from your machine still works if you need one: run `npx vercel login`, then `npx vercel link`, then `npx vercel deploy --prod`.
 
 `vercel.json` sends every path to `index.html`, so links like `/today` or `/tag/work` work when you refresh the page.
 
